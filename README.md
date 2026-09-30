@@ -1,5 +1,3 @@
-# wazuh-sysmon-virustotal-atomic-red-team
-A hands-on SIEM and threat detection lab integrating Wazuh, Sysmon, VirusTotal, and Atomic Red Team.
 # Wazuh + Sysmon + VirusTotal + Atomic Red Team Lab
 
 > 🚧 **Status: Work in Progress**
@@ -62,11 +60,21 @@ Deployed the Wazuh agent on a Windows 11 virtual machine.
 
 The agent was verified as **Active** and communicating with the Wazuh Manager.
 
+Evidence:
+
+<img width="1217" height="611" alt="Screenshot (372)" src="https://github.com/user-attachments/assets/d90bb9a6-ae51-4ce6-9186-b22d07f91470" />
+
+
 ### Sysmon
 
 Installed and configured Microsoft Sysmon on the Windows endpoint.
 
 Sysmon was verified to generate Windows process telemetry through:
+
+Evidence
+
+<img width="1019" height="714" alt="Screenshot (374)" src="https://github.com/user-attachments/assets/bb5f3138-5263-4907-8ea0-e89ee6a8b02c" />
+
 
 `Microsoft-Windows-Sysmon/Operational`
 
@@ -76,6 +84,11 @@ Configured the Wazuh Windows agent to collect the Sysmon Operational event chann
 
 A Wazuh detection was observed for Windows process activity associated with **Sysmon Event ID 1 (Process Create)**.
 
+Evidence
+
+<img width="1211" height="682" alt="Screenshot (368)" src="https://github.com/user-attachments/assets/7db9fffc-8956-41e3-bb8a-e8c4063f35e7" />
+
+
 One observed detection identified a `net.exe` account discovery command.
 
 ### VirusTotal
@@ -84,11 +97,42 @@ Integrated VirusTotal into the Wazuh lab and worked through the API configuratio
 
 ## Atomic Red Team
 
-**Status: Planned / In Progress**
+# Atomic Red Team Detection Validation
 
-Atomic Red Team will be used to generate controlled ATT&CK-aligned adversary activity against the Windows 11 lab endpoint.
+### Test 1 — Local Account Discovery
 
-The planned workflow is:
+**Technique:** T1087.001 - Account Discovery: Local Account
+**Atomic Test:** Test 9
+**Activity:** Local account discovery using Windows built-in commands
+**Telemetry:** Sysmon Event ID 1 - Process Creation
+**SIEM:** Wazuh
+**Detection Rule:** 92031 - Discovery activity executed
+**Result:** Successfully detected
+
+Atomic Test Execution
+
+The Atomic Red Team test was executed on the Windows 11 endpoint using Invoke-AtomicTest.
+
+Evidence:
+
+<img width="1022" height="725" alt="Screenshot (373)" src="https://github.com/user-attachments/assets/87d236dd-c9c8-4aeb-b82e-2661e7ee01f6" />
+
+
+#### Detection Evidence
+
+The Atomic Red Team test generated discovery activity on the Windows 11 endpoint. Sysmon captured the process creation event, and the Wazuh agent forwarded the telemetry to the Wazuh manager.
+
+Wazuh successfully matched the activity with rule **92031**, producing the alert **“Discovery activity executed.”**
+
+**Detection chain:**
+
+`Atomic Red Team → Windows 11 → Sysmon → Wazuh Agent → Wazuh Manager → Rule 92031`
+
+**Evidence screenshot:**
+
+<img width="1201" height="669" alt="Screenshot (371)" src="https://github.com/user-attachments/assets/e26a8cde-2785-49e9-afa7-af5da473373c" />
+
+
 
 ```text
 Atomic Red Team Test
